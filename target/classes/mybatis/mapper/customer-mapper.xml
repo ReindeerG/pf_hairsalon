@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="db_customer">
+	<insert id="insert_self" parameterType="customerDto">
+		INSERT INTO CUSTOMER VALUES(
+									CUSTOMER_SEQ.NEXTVAL,
+									#{email},
+									#{pw},
+									#{name},
+									#{gender},
+									#{phone},
+									to_date(#{birth_str},'YYYY-MM-DD'),
+									SYSDATE,
+									1000,
+									NULL,
+									1,
+									0,
+									SYSDATE,
+									SYSDATE+365,
+									0,
+									#{confirmcode}
+									)
+	</insert>
+	<insert id="insert_byadmin" parameterType="customerDto">
+		INSERT INTO CUSTOMER VALUES(
+									CUSTOMER_SEQ.NEXTVAL,
+									#{email},
+									#{pw},
+									#{name},
+									#{gender},
+									#{phone},
+									to_date(#{birth_str},'YYYY-MM-DD'),
+									SYSDATE,
+									1000,
+									NULL,
+									1,
+									0,
+									SYSDATE,
+									SYSDATE+365,
+									1,
+									'매장가입'
+									)
+	</insert>
+	<select id="alllist" resultType="customerDto">
+		SELECT * FROM CUSTOMER ORDER BY NO DESC
+	</select>
+	<select id="findid" parameterType="customerDto" resultType="customerDto">
+		SELECT * FROM CUSTOMER WHERE NAME=#{name} AND GENDER=#{gender} AND PHONE=#{phone} AND BIRTH=to_date(#{birth_str},'YYYY-MM-DD')
+	</select>
+	<select id="list_search" parameterType="customerDto" resultType="customerDto">
+		SELECT L.* FROM (SELECT rownum AS RN, T.* FROM (SELECT * FROM CUSTOMER WHERE ${search} LIKE '%'||#{keyword}||'%' ORDER BY ${sort} DESC, NO DESC)T)L WHERE RN BETWEEN ${liststart} AND ${liststart}+${listcount}-1
+	</select>
+	<select id="list_search_designer" parameterType="customerDto" resultType="customerDto">
+		SELECT L.* FROM (SELECT rownum AS RN, T.* FROM (SELECT * FROM CUSTOMER WHERE DESIGNER IN (SELECT NO FROM DESIGNER WHERE NAME LIKE '%'||#{keyword}||'%') ORDER BY ${sort} DESC, NO DESC)T)L WHERE RN BETWEEN ${liststart} AND ${liststart}+${listcount}-1
+	</select>
+	<select id="list_one" parameterType="customerDto" resultType="customerDto">
+		SELECT * FROM CUSTOMER WHERE NO=#{no}
+	</select>
+	<select id="count_search" parameterType="customerDto" resultType="int">
+		SELECT COUNT(*) FROM CUSTOMER WHERE ${search} LIKE '%'||#{keyword}||'%'
+	</select>
+	<select id="count_search_designer" parameterType="customerDto" resultType="int">
+		SELECT COUNT(*) FROM CUSTOMER WHERE DESIGNER IN (SELECT NO FROM DESIGNER WHERE NAME LIKE '%'||#{keyword}||'%')
+	</select>
+	<select id="search_schedule" parameterType="customerDto" resultType="customerDto">
+		SELECT * FROM CUSTOMER WHERE NAME LIKE '%'||#{name}||'%' AND PHONE LIKE '%'||#{phone}||'%' ORDER BY NO ASC
+	</select>
+	<select id="getone" parameterType="int" resultType="customerDto">
+		SELECT * FROM CUSTOMER WHERE NO=#{no}
+	</select>
+	<select id="getonebyname" parameterType="string" resultType="customerDto">
+		SELECT * FROM CUSTOMER WHERE NAME=#{name}
+	</select>
+	<select id="getonebyemail" parameterType="string" resultType="customerDto">
+		SELECT * FROM CUSTOMER WHERE EMAIL=#{email}
+	</select>
+	<select id="existByEmail" parameterType="string" resultType="int">
+		SELECT COUNT(*) FROM CUSTOMER WHERE EMAIL=#{email}
+	</select>
+	<select id="login" parameterType="customerDto" resultType="customerDto">
+		SELECT * FROM CUSTOMER WHERE EMAIL=#{email} AND PW=#{pw}
+	</select>
+	<update id="delete" parameterType="int">
+		DELETE CUSTOMER WHERE NO=#{no}
+	</update>
+	<update id="modifyByCustomer" parameterType="customerDto">
+		UPDATE CUSTOMER SET
+							PHONE=#{phone}
+						WHERE NO=#{no}
+	</update>
+	<update id="modifyPw" parameterType="customerDto">
+		UPDATE CUSTOMER SET
+							PW=#{pw}
+						WHERE NO=#{no}
+	</update>
+	<select id="checkpw" parameterType="customerDto" resultType="int">
+		SELECT COUNT(*) FROM CUSTOMER WHERE NO=#{no} AND PW=#{pw}
+	</select>
+	<update id="modifyByAdmin" parameterType="customerDto">
+		UPDATE CUSTOMER SET
+							EMAIL=#{email},
+							NAME=#{name},
+							GENDER=#{gender},
+							PHONE=#{phone},
+							BIRTH=to_date(#{birth_str},'YYYY-MM-DD'),
+							<choose>
+								<when test="designer==0">
+									DESIGNER=NULL
+								</when>
+								<otherwise>
+									DESIGNER=#{designer}
+								</otherwise>
+							</choose>
+						WHERE NO=#{no}
+	</update>
+	<update id="mileageuse" parameterType="customerDto">
+		UPDATE CUSTOMER SET
+							MILEAGE=MILEAGE-#{mileage}
+						WHERE NO=#{no}
+	</update>
+	<update id="mileagecharge" parameterType="customerDto">
+		UPDATE CUSTOMER SET
+							MILEAGE=MILEAGE+#{mileage}
+						WHERE NO=#{no}
+	</update>
+	<select id="checkconfirm" parameterType="customerDto" resultType="int">
+		SELECT COUNT(*) FROM CUSTOMER WHERE NO=#{no} AND CONFIRMCODE=#{confirmcode}
+	</select>
+	<update id="mailconfirm" parameterType="int">
+		UPDATE CUSTOMER SET
+							CONFIRMED=1
+						WHERE NO=#{no}
+	</update>
+	<update id="visitcount" parameterType="int">
+		UPDATE CUSTOMER SET
+							VISITCOUNT=VISITCOUNT+1,
+							LATESTDATE=SYSDATE,
+							DELETEDATE=SYSDATE+365
+						WHERE NO=#{no}
+	</update>
+	<update id="logindeletedelay" parameterType="int">
+		UPDATE CUSTOMER SET
+							DELETEDATE=SYSDATE+365
+						WHERE NO=#{no}
+	</update>
+	<update id="dayover">
+		DELETE CUSTOMER WHERE TRUNC(SYSDATE) > DELETEDATE 
+	</update>
+	<update id="notconfirmover">
+		DELETE CUSTOMER WHERE CONFIRMED=0 AND TRUNC(SYSDATE) > REG+2
+	</update>
+	<select id="warninglist" resultType="customerDto">
+		SELECT * FROM CUSTOMER WHERE DELETEDATE = TRUNC(SYSDATE)+30
+	</select>
+</mapper>

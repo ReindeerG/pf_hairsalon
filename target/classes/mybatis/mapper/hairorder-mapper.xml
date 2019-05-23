@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="db_hairorder">
+	<insert id="insert_member" parameterType="hairorderDto">
+		INSERT INTO HAIRORDER VALUES(
+									HAIRORDER_SEQ.NEXTVAL,
+									to_date(#{whatday_str},'YYYY-MM-DD'),
+									#{starttime},
+									#{time},
+									#{customer},
+									#{customer_name},
+									#{customer_gender},
+									#{customer_phone},
+									#{designer},
+									#{design},
+									#{price},
+									#{plus},
+									#{dc},
+									#{finalprice},
+									#{paytype},
+									#{memo}
+									)
+	</insert>
+	<insert id="insert_nonmember" parameterType="hairorderDto">
+		INSERT INTO HAIRORDER VALUES(
+									HAIRORDER_SEQ.NEXTVAL,
+									to_date(#{whatday_str},'YYYY-MM-DD'),
+									#{starttime},
+									#{time},
+									NULL,
+									#{customer_name},
+									#{customer_gender},
+									#{customer_phone},
+									#{designer},
+									#{design},
+									#{price},
+									#{plus},
+									#{dc},
+									#{finalprice},
+									#{paytype},
+									#{memo}
+									)
+	</insert>
+	<select id="alllist" resultType="hairorderDto">
+		SELECT * FROM HAIRORDER ORDER BY NO DESC
+	</select>
+	<select id="list_search" parameterType="hairorderDto" resultType="hairorderDto">
+		SELECT L.* FROM (SELECT rownum AS RN, T.* FROM (SELECT * FROM HAIRORDER WHERE ${search} LIKE '%'||#{keyword}||'%' ORDER BY ${sort} DESC NULLS LAST, NO DESC)T)L WHERE RN BETWEEN ${liststart} AND ${liststart}+${listcount}-1
+	</select>
+	<select id="list_search_date" parameterType="hairorderDto" resultType="hairorderDto">
+		SELECT L.* FROM (SELECT rownum AS RN, T.* FROM (SELECT * FROM HAIRORDER WHERE WHATDAY = to_date(#{keyword},'YYYY-MM-DD') ORDER BY ${sort} DESC NULLS LAST, NO DESC)T)L WHERE RN BETWEEN ${liststart} AND ${liststart}+${listcount}-1
+	</select>
+	<select id="list_search_designer" parameterType="hairorderDto" resultType="hairorderDto">
+		SELECT L.* FROM (SELECT rownum AS RN, T.* FROM (SELECT HAIRORDER.* FROM HAIRORDER LEFT OUTER JOIN DESIGNER ON HAIRORDER.DESIGNER = DESIGNER.NO WHERE DESIGNER.NO IN (SELECT NO FROM DESIGNER WHERE NAME LIKE '%'||#{keyword}||'%') ORDER BY HAIRORDER.NO DESC)T)L WHERE RN BETWEEN ${liststart} AND ${liststart}+${listcount}-1
+	</select>
+	<select id="list_search_design" parameterType="hairorderDto" resultType="hairorderDto">
+		SELECT L.* FROM (SELECT rownum AS RN, T.* FROM (SELECT HAIRORDER.* FROM HAIRORDER LEFT OUTER JOIN DESIGN ON HAIRORDER.DESIGN = DESIGN.NO WHERE DESIGN.NO IN (SELECT NO FROM DESIGN WHERE NAME LIKE '%'||#{keyword}||'%') ORDER BY HAIRORDER.NO DESC)T)L WHERE RN BETWEEN ${liststart} AND ${liststart}+${listcount}-1
+	</select>
+	<select id="list_search_customer" parameterType="hairorderDto" resultType="hairorderDto">
+		SELECT L.* FROM (SELECT rownum AS RN, T.* FROM (SELECT * FROM HAIRORDER WHERE CUSTOMER = ${keyword} ORDER BY ${sort} DESC NULLS LAST, NO DESC)T)L WHERE RN BETWEEN ${liststart} AND ${liststart}+${listcount}-1
+	</select>
+	<select id="list_one" parameterType="hairorderDto" resultType="hairorderDto">
+		SELECT * FROM HAIRORDER WHERE NO=${keyword}
+	</select>
+	<select id="count_search" parameterType="hairorderDto" resultType="int">
+		SELECT COUNT(*) FROM HAIRORDER WHERE ${search} LIKE '%'||#{keyword}||'%'
+	</select>
+	<select id="count_search_date" parameterType="hairorderDto" resultType="int">
+		SELECT COUNT(*) FROM HAIRORDER WHERE WHATDAY = to_date(#{keyword},'YYYY-MM-DD')
+	</select>
+	<select id="count_search_designer" parameterType="hairorderDto" resultType="int">
+		SELECT COUNT(*) FROM (SELECT HAIRORDER.* FROM HAIRORDER LEFT OUTER JOIN DESIGNER ON HAIRORDER.DESIGNER = DESIGNER.NO WHERE DESIGNER.NO IN (SELECT NO FROM DESIGNER WHERE NAME LIKE '%'||#{keyword}||'%'))
+	</select>
+	<select id="count_search_design" parameterType="hairorderDto" resultType="int">
+		SELECT COUNT(*) FROM (SELECT HAIRORDER.* FROM HAIRORDER LEFT OUTER JOIN DESIGN ON HAIRORDER.DESIGN = DESIGN.NO WHERE DESIGN.NO IN (SELECT NO FROM DESIGN WHERE NAME LIKE '%'||#{keyword}||'%'))
+	</select>
+	<select id="count_search_customer" parameterType="hairorderDto" resultType="int">
+		SELECT COUNT(*) FROM HAIRORDER WHERE CUSTOMER = ${keyword}
+	</select>
+</mapper>

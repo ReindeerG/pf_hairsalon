@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="db_admin">
+	<insert id="insert" parameterType="adminDto">
+		INSERT INTO ADMIN VALUES(
+									ADMIN_SEQ.NEXTVAL,
+									#{email},
+									#{pw},
+									#{name}
+									)
+	</insert>
+	<select id="alllist" resultType="adminDto">
+		SELECT * FROM ADMIN ORDER BY NO ASC
+	</select>
+	<select id="getone" parameterType="int" resultType="adminDto">
+		SELECT * FROM ADMIN WHERE NO=#{no}
+	</select>
+	<select id="login" parameterType="adminDto" resultType="adminDto">
+		SELECT * FROM ADMIN WHERE EMAIL=#{email} AND PW=#{pw}
+	</select>
+</mapper>

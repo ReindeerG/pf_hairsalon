@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="db_board">
+	<insert id="insert" parameterType="boardDto">
+		INSERT INTO BOARD VALUES(
+									#{no},
+									#{title},
+									SYSDATE,
+									SYSDATE,
+									#{content},
+									0,
+									#{file1_path},
+									#{file1_type},
+									#{file1_name},
+									#{file1_size},
+									#{file2_path},
+									#{file2_type},
+									#{file2_name},
+									#{file2_size}
+									)
+	</insert>
+	<select id="nextval" resultType="int">
+		SELECT BOARD_SEQ.NEXTVAL FROM DUAL
+	</select>
+	<select id="alllist" resultType="boardDto">
+		SELECT * FROM BOARD ORDER BY NO DESC
+	</select>
+	<select id="somelist" parameterType="map" resultType="boardDto">
+		SELECT L.* FROM (SELECT rownum AS RN, T.* FROM (SELECT * FROM BOARD ORDER BY NO DESC)T)L WHERE RN BETWEEN #{start} AND #{start}+#{count}-1
+	</select>
+	<select id="list_search" parameterType="boardDto" resultType="boardDto">
+		SELECT L.* FROM (SELECT rownum AS RN, T.* FROM (SELECT * FROM BOARD WHERE ${search} LIKE '%'||#{keyword}||'%' ORDER BY ${sort} DESC, NO DESC)T)L WHERE RN BETWEEN ${liststart} AND ${liststart}+${listcount}-1
+	</select>
+	<select id="list_one" parameterType="boardDto" resultType="boardDto">
+		SELECT * FROM BOARD WHERE NO=#{no}
+	</select>
+	<select id="count_search" parameterType="boardDto" resultType="int">
+		SELECT COUNT(*) FROM BOARD WHERE ${search} LIKE '%'||#{keyword}||'%'
+	</select>
+	<select id="count_all" resultType="int">
+		SELECT COUNT(*) FROM BOARD
+	</select>
+	<select id="getone" parameterType="int" resultType="boardDto">
+		SELECT * FROM BOARD WHERE NO=#{no}
+	</select>
+	<select id="isexist" parameterType="int" resultType="int">
+		SELECT COUNT(*) FROM BOARD WHERE NO=#{no}
+	</select>
+	<update id="delete" parameterType="int">
+		DELETE BOARD WHERE NO=#{no}
+	</update>
+	<update id="viewcountup" parameterType="int">
+		UPDATE BOARD SET
+							VIEWCOUNT=VIEWCOUNT+1
+						WHERE NO=#{no}
+	</update>
+	<update id="modify" parameterType="boardDto">
+		UPDATE BOARD SET
+							TITLE=#{title},
+							DATE_MOD=SYSDATE,
+							CONTENT=#{content},
+							FILE1_PATH=#{file1_path},
+							FILE1_TYPE=#{file1_type},
+							FILE1_NAME=#{file1_name},
+							FILE1_SIZE=#{file1_size},
+							FILE2_PATH=#{file2_path},
+							FILE2_TYPE=#{file2_type},
+							FILE2_NAME=#{file2_name},
+							FILE2_SIZE=#{file2_size}
+						WHERE NO=#{no}
+	</update>
+	<update id="del_attach" parameterType="boardDto">
+		UPDATE BOARD SET
+							FILE1_PATH=#{file1_path},
+							FILE1_TYPE=#{file1_type},
+							FILE1_NAME=#{file1_name},
+							FILE1_SIZE=#{file1_size},
+							FILE2_PATH=#{file2_path},
+							FILE2_TYPE=#{file2_type},
+							FILE2_NAME=#{file2_name},
+							FILE2_SIZE=#{file2_size}
+						WHERE NO=#{no}
+	</update>
+</mapper>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="db_design">
+	<insert id="insert" parameterType="designDto">
+		INSERT INTO DESIGN VALUES(
+									DESIGN_SEQ.NEXTVAL,
+									#{type},
+									#{name},
+									#{price},
+									#{isonoff},
+									#{maxtime},
+									#{memo}
+									)
+	</insert>
+	<select id="alllist" resultType="designDto">
+		SELECT * FROM DESIGN ORDER BY NO ASC
+	</select>
+	<select id="list_search" parameterType="designDto" resultType="designDto">
+		SELECT * FROM DESIGN WHERE ${search} LIKE '%'||#{keyword}||'%' ORDER BY ${sort} DESC, NO ASC
+	</select>
+	<select id="listforpage" resultType="designDto">
+		SELECT * FROM DESIGN WHERE ISONOFF=1 ORDER BY DECODE(TYPE,'컷',1,'펌',2,'염색',3,'케어',4), NO ASC
+	</select>
+	<select id="onlist" resultType="designDto">
+		SELECT * FROM DESIGN WHERE ISONOFF=1 ORDER BY NO ASC
+	</select>
+	<select id="getone" parameterType="int" resultType="designDto">
+		SELECT * FROM DESIGN WHERE NO=#{no}
+	</select>
+	<update id="delete" parameterType="int">
+		DELETE DESIGN WHERE NO=#{no}
+	</update>
+	<update id="modify" parameterType="designDto">
+		UPDATE DESIGN SET
+							TYPE=#{type},
+							NAME=#{name},
+							PRICE=#{price},
+							ISONOFF=#{isonoff},
+							MAXTIME=#{maxtime},
+							MEMO=#{memo}
+						WHERE NO=#{no}
+	</update>
+	<update id="restore">
+		UPDATE DESIGN SET ISONOFF=1
+	</update>
+</mapper>

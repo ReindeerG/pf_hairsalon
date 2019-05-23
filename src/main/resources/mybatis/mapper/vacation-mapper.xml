@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="db_vacation">
+	<insert id="insert" parameterType="vacationDto">
+		INSERT INTO VACATION VALUES(
+									VACATION_SEQ.NEXTVAL,
+									#{designer},
+									to_date(#{vac_str},'YYYY-MM-DD'),
+									#{memo}
+									)
+	</insert>
+	<select id="alllist" parameterType="int" resultType="vacationDto">
+		SELECT * FROM VACATION WHERE DESIGNER=#{designer} ORDER BY VAC ASC
+	</select>
+	<select id="todays" resultType="Integer">
+		SELECT DESIGNER FROM VACATION WHERE VAC=TRUNC(SYSDATE) ORDER BY DESIGNER ASC
+	</select>
+	<select id="getone" parameterType="int" resultType="vacationDto">
+		SELECT * FROM VACATION WHERE NO=#{no}
+	</select>
+	<select id="isexist" parameterType="vacationDto" resultType="int">
+		SELECT COUNT(*) FROM VACATION WHERE DESIGNER=#{designer} AND VAC=to_date(#{vac_str},'YYYY-MM-DD') AND NO!=#{no}
+	</select>
+	<select id="isvacation" parameterType="vacationDto" resultType="int">
+		SELECT COUNT(*) FROM VACATION WHERE DESIGNER=#{designer} AND VAC=to_date(#{vac_str},'YYYY-MM-DD')
+	</select>
+	<update id="modify" parameterType="vacationDto">
+		UPDATE VACATION SET
+							VAC=to_date(#{vac_str},'YYYY-MM-DD'),
+							MEMO=#{memo}
+						WHERE NO=#{no}
+	</update>
+	<update id="delete" parameterType="int">
+		DELETE VACATION WHERE NO=#{no}
+	</update>
+	<update id="dayover">
+		DELETE VACATION WHERE TRUNC(SYSDATE) > VAC
+	</update>
+</mapper>

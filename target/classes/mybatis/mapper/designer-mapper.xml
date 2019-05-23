@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="db_designer">
+	<insert id="insert" parameterType="designerDto">
+		INSERT INTO DESIGNER VALUES(
+									#{no},
+									#{name},
+									#{gender},
+									#{phone},
+									#{email},
+									to_date(#{birth_str},'YYYY-MM-DD'),
+									#{grade},
+									to_date(#{signindate_str},'YYYY-MM-DD'),
+									NULL,
+									#{offdays},
+									0,
+									0,
+									#{isonoff}
+									)
+	</insert>
+	<select id="nextval" resultType="int">
+		SELECT DESIGNER_SEQ.NEXTVAL FROM DUAL
+	</select>
+	<select id="alllist" resultType="designerDto">
+		SELECT * FROM DESIGNER ORDER BY NO ASC
+	</select>
+	<select id="list_search" parameterType="designerDto" resultType="designerDto">
+		SELECT * FROM DESIGNER WHERE ${search} LIKE '%'||#{keyword}||'%' ORDER BY ${sort} ASC, NO ASC
+	</select>
+	<select id="onlist" resultType="designerDto">
+		SELECT * FROM DESIGNER WHERE ISONOFF=1 ORDER BY GRADE ASC, NO ASC
+	</select>
+	<select id="getone" parameterType="int" resultType="designerDto">
+		SELECT * FROM DESIGNER WHERE NO=#{no}
+	</select>
+	<update id="modify" parameterType="designerDto">
+		UPDATE DESIGNER SET
+							NAME=#{name},
+							GENDER=#{gender},
+							PHONE=#{phone},
+							EMAIL=#{email},
+							BIRTH=to_date(#{birth_str},'YYYY-MM-DD'),
+							GRADE=#{grade},
+							SIGNINDATE=to_date(#{signindate_str},'YYYY-MM-DD'),
+							OFFDAYS=#{offdays},
+							ISONOFF=#{isonoff}
+				WHERE NO=#{no}
+	</update>
+	<update id="picchange" parameterType="designerDto">
+		UPDATE DESIGNER SET
+							PICTURE=#{picture}
+				WHERE NO=#{no}
+	</update>
+	<update id="delete" parameterType="int">
+		DELETE DESIGNER WHERE NO=#{no}
+	</update>
+	<update id="designcount" parameterType="int">
+		UPDATE DESIGNER SET
+							DESIGNCOUNT=DESIGNCOUNT+1
+						WHERE NO=#{no}
+	</update>
+	<update id="tovacation" parameterType="int">
+		UPDATE DESIGNER SET
+							ISVACATION=1
+						WHERE NO=#{no}
+	</update>
+	<update id="toworkall">
+		UPDATE DESIGNER SET ISVACATION=0
+	</update>
+	<update id="restore1">
+		UPDATE DESIGNER SET ISONOFF=1
+	</update>
+	<update id="restore2">
+		UPDATE DESIGNER SET OFFDAYS=NULL WHERE NO=1
+	</update>
+</mapper>

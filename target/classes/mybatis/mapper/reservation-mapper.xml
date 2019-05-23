@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="db_reservation">
+	<insert id="insert_member" parameterType="reservationDto">
+		INSERT INTO RESERVATION VALUES(
+									RESERVATION_SEQ.NEXTVAL,
+									to_date(#{whatday_str},'YYYY-MM-DD'),
+									#{starttime},
+									#{period},
+									#{customer},
+									#{customer_name},
+									#{customer_gender},
+									#{customer_phone},
+									#{design},
+									#{designer},
+									0
+									)
+	</insert>
+	<insert id="insert_nonmember" parameterType="reservationDto">
+		INSERT INTO RESERVATION VALUES(
+									RESERVATION_SEQ.NEXTVAL,
+									to_date(#{whatday_str},'YYYY-MM-DD'),
+									#{starttime},
+									#{period},
+									NULL,
+									#{customer_name},
+									#{customer_gender},
+									#{customer_phone},
+									#{design},
+									#{designer},
+									0
+									)
+	</insert>
+	<select id="alllist" resultType="reservationDto">
+		SELECT * FROM RESERVATION ORDER BY NO ASC
+	</select>
+	<select id="customerlist" resultType="reservationDto" parameterType="int">
+		SELECT * FROM RESERVATION WHERE WHATDAY>=TRUNC(SYSDATE) AND CUSTOMER=#{customer} ORDER BY WHATDAY ASC, STARTTIME ASC
+	</select>
+	<select id="listindate" parameterType="string" resultType="reservationDto">
+		SELECT * FROM RESERVATION WHERE WHATDAY=to_date(#{whatday_str},'YYYY-MM-DD') ORDER BY STARTTIME ASC
+	</select>
+	<select id="listtoday0" resultType="reservationDto">
+		SELECT * FROM RESERVATION WHERE WHATDAY=TRUNC(SYSDATE) AND STATE=0 ORDER BY STARTTIME ASC
+	</select>
+	<select id="listtoday1" resultType="reservationDto">
+		SELECT * FROM RESERVATION WHERE WHATDAY=TRUNC(SYSDATE) AND STATE=1 ORDER BY STARTTIME ASC
+	</select>
+	<select id="getone" parameterType="int" resultType="reservationDto">
+		SELECT * FROM RESERVATION WHERE NO=#{no}
+	</select>
+	<update id="delete" parameterType="int">
+		DELETE RESERVATION WHERE NO=#{no}
+	</update>
+	<update id="modify" parameterType="reservationDto">
+		UPDATE RESERVATION SET
+							WHATDAY=to_date(#{whatday_str},'YYYY-MM-DD'),
+							STARTTIME=#{starttime},
+							PERIOD=#{period},
+							CUSTOMER_NAME=#{customer_name},
+							CUSTOMER_GENDER=#{customer_gender},
+							CUSTOMER_PHONE=#{customer_phone},
+							DESIGN=#{design},
+							DESIGNER=#{designer}
+				WHERE NO=#{no}
+	</update>
+	<update id="modifybycustomer" parameterType="reservationDto">
+		UPDATE RESERVATION SET
+							WHATDAY=to_date(#{whatday_str},'YYYY-MM-DD'),
+							STARTTIME=#{starttime},
+							PERIOD=#{period},
+							DESIGN=#{design},
+							DESIGNER=#{designer}
+				WHERE NO=#{no}
+	</update>
+	<update id="receptionto0" parameterType="int">
+		UPDATE RESERVATION SET
+							STATE=0
+				WHERE NO=#{no}
+	</update>
+	<update id="receptionto1" parameterType="int">
+		UPDATE RESERVATION SET
+							STATE=1
+				WHERE NO=#{no}
+	</update>
+<!-- 		[내 starttime보다 starttime이 이른 이들]의 endtime보다 내 starttime이 적을때 -->
+<!-- 		[내 starttime보다 starttime이 늦는 애들]의 starttime이 내 endtime보다 적을 때 -->
+<!-- 		나와 starttime이 같은 -->
+<!-- 		[내 starttime보다 starttime이 늦는 애들]의 endtime이 내 endtime보다 적을 때 -->
+<!-- 		[내 starttime보다 starttime이 이른 애들]의 endtime이 내 endtime보다 클 때 -->
+	<select id="timecheck1" parameterType="reservationDto" resultType="int">
+		SELECT COUNT(*) FROM RESERVATION WHERE (NO!=#{no} AND DESIGNER=#{designer} AND WHATDAY=to_date(#{whatday_str},'YYYY-MM-DD') AND #{starttime}>STARTTIME AND STARTTIME+PERIOD>#{starttime})
+	</select>
+	<select id="timecheck2" parameterType="reservationDto" resultType="int">
+		SELECT COUNT(*) FROM RESERVATION WHERE (NO!=#{no} AND DESIGNER=#{designer} AND WHATDAY=to_date(#{whatday_str},'YYYY-MM-DD') AND STARTTIME>#{starttime} AND #{starttime}+#{period}>STARTTIME)
+	</select>
+	<select id="timecheck3" parameterType="reservationDto" resultType="int">
+		SELECT COUNT(*) FROM RESERVATION WHERE (NO!=#{no} AND DESIGNER=#{designer} AND WHATDAY=to_date(#{whatday_str},'YYYY-MM-DD') AND STARTTIME=#{starttime})
+	</select>
+	<select id="timecheck4" parameterType="reservationDto" resultType="int">
+		SELECT COUNT(*) FROM RESERVATION WHERE (NO!=#{no} AND DESIGNER=#{designer} AND WHATDAY=to_date(#{whatday_str},'YYYY-MM-DD') AND STARTTIME>#{starttime} AND #{starttime}+#{period}>STARTTIME+PERIOD)
+	</select>
+	<select id="timecheck5" parameterType="reservationDto" resultType="int">
+		SELECT COUNT(*) FROM RESERVATION WHERE (NO!=#{no} AND DESIGNER=#{designer} AND WHATDAY=to_date(#{whatday_str},'YYYY-MM-DD') AND #{starttime}>STARTTIME AND STARTTIME+PERIOD>#{starttime}+#{period})
+	</select>
+	<update id="dayover">
+		DELETE RESERVATION WHERE TRUNC(SYSDATE) > WHATDAY
+	</update>
+</mapper>

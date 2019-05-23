@@ -1,0 +1,23 @@
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<settings>
+		<setting name="autoMappingBehavior" value="FULL"/>
+	</settings>
+	
+	<typeAliases>
+		<typeAlias type="hairsalon.entity.CustomerDto" alias="customerDto"/>
+		<typeAlias type="hairsalon.entity.AdminDto" alias="adminDto"/>
+		<typeAlias type="hairsalon.entity.DesignDto" alias="designDto"/>
+		<typeAlias type="hairsalon.entity.DesignerDto" alias="designerDto"/>
+		<typeAlias type="hairsalon.entity.HairorderDto" alias="hairorderDto"/>
+		<typeAlias type="hairsalon.entity.ReservationDto" alias="reservationDto"/>
+		<typeAlias type="hairsalon.entity.VacationDto" alias="vacationDto"/>
+		<typeAlias type="hairsalon.entity.QnaDto" alias="qnaDto"/>
+		<typeAlias type="hairsalon.entity.BoardDto" alias="boardDto"/>
+		<typeAlias type="hairsalon.entity.UploadimageDto" alias="uploadimageDto"/>
+		<typeAlias type="hairsalon.entity.VacationDto" alias="vacationDto"/>
+	</typeAliases>
+</configuration>

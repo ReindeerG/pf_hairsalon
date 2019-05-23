@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="db_qna">
+	<insert id="question_new" parameterType="qnaDto">
+		INSERT INTO QNA VALUES(
+									QNA_SEQ.NEXTVAL,
+									#{customer},
+									#{question},
+									SYSDATE,
+									NULL,
+									NULL
+									)
+	</insert>
+	<select id="list_new" resultType="qnaDto">
+		SELECT * FROM QNA WHERE TIME_A IS NULL ORDER BY TIME_Q ASC
+	</select>
+	<select id="list_answered" resultType="qnaDto">
+		SELECT * FROM QNA WHERE TIME_A IS NOT NULL ORDER BY TIME_A DESC
+	</select>
+	<select id="list_new_somepage" parameterType="map" resultType="qnaDto">
+		SELECT N.* FROM (SELECT rownum AS RN, T.* FROM (SELECT * FROM QNA WHERE TIME_A IS NULL ORDER BY TIME_Q ASC)T)N WHERE RN BETWEEN #{start} AND #{start}+#{count}-1
+	</select>
+	<select id="list_answered_somepage" parameterType="map" resultType="qnaDto">
+		SELECT A.* FROM (SELECT rownum AS RN, T.* FROM (SELECT * FROM QNA WHERE TIME_A IS NOT NULL ORDER BY TIME_A DESC)T)A WHERE RN BETWEEN #{start} AND #{start}+#{count}-1
+	</select>
+	<select id="list_search" parameterType="qnaDto" resultType="qnaDto">
+		SELECT L.* FROM (SELECT rownum AS RN, T.* FROM (SELECT * FROM QNA WHERE ${search} LIKE '%'||#{keyword}||'%' ORDER BY NO DESC)T)L WHERE RN BETWEEN ${liststart} AND ${liststart}+${listcount}-1
+	</select>
+	<select id="list_one" parameterType="qnaDto" resultType="qnaDto">
+		SELECT * FROM QNA WHERE NO=#{keyword}
+	</select>
+	<select id="list_forcustomer" parameterType="qnaDto" resultType="qnaDto">
+		SELECT L.* FROM (SELECT rownum AS RN, T.* FROM (SELECT * FROM QNA WHERE ${search} LIKE '%'||#{keyword}||'%' AND CUSTOMER=#{customer} ORDER BY NO DESC)T)L WHERE RN BETWEEN ${liststart} AND ${liststart}+${listcount}-1
+	</select>
+	<select id="list_customer" parameterType="qnaDto" resultType="qnaDto">
+		SELECT L.* FROM (SELECT rownum AS RN, T.* FROM (SELECT * FROM QNA WHERE CUSTOMER=${keyword} ORDER BY NO DESC)T)L WHERE RN BETWEEN ${liststart} AND ${liststart}+${listcount}-1
+	</select>
+	<select id="list_customername" parameterType="qnaDto" resultType="qnaDto">
+		SELECT L.* FROM (SELECT rownum AS RN, T.* FROM (SELECT QNA.* FROM QNA LEFT OUTER JOIN CUSTOMER ON QNA.CUSTOMER = CUSTOMER.NO WHERE CUSTOMER.NO IN (SELECT NO FROM CUSTOMER WHERE NAME LIKE '%'||#{keyword}||'%') ORDER BY QNA.NO DESC)T)L WHERE RN BETWEEN ${liststart} AND ${liststart}+${listcount}-1
+	</select>
+	<select id="count_forcustomer" parameterType="qnaDto" resultType="int">
+		SELECT COUNT(*) FROM QNA WHERE ${search} LIKE '%'||#{keyword}||'%' AND CUSTOMER=#{customer}
+	</select>
+	<select id="count_search" parameterType="qnaDto" resultType="int">
+		SELECT COUNT(*) FROM QNA WHERE ${search} LIKE '%'||#{keyword}||'%'
+	</select>
+	<select id="count_customer" parameterType="qnaDto" resultType="int">
+		SELECT COUNT(*) FROM QNA WHERE CUSTOMER=#{keyword}
+	</select>
+	<select id="count_customername" parameterType="qnaDto" resultType="int">
+		SELECT COUNT(*) FROM (SELECT QNA.* FROM QNA LEFT OUTER JOIN CUSTOMER ON QNA.CUSTOMER = CUSTOMER.NO WHERE CUSTOMER.NO IN (SELECT NO FROM CUSTOMER WHERE NAME LIKE '%'||#{keyword}||'%'))
+	</select>
+	<select id="getone" parameterType="int" resultType="qnaDto">
+		SELECT * FROM QNA WHERE NO=#{no}
+	</select>
+	<select id="isnotanswered" parameterType="int" resultType="int">
+		SELECT COUNT(*) FROM QNA WHERE NO=#{no} AND TIME_A IS NULL
+	</select>
+	<select id="count_all" resultType="int">
+		SELECT COUNT(*) FROM QNA
+	</select>
+	<select id="count_new" resultType="int">
+		SELECT COUNT(*) FROM QNA WHERE TIME_A IS NULL
+	</select>
+	<select id="count_answered" resultType="int">
+		SELECT COUNT(*) FROM QNA WHERE TIME_A IS NOT NULL
+	</select>
+	<update id="question_mod" parameterType="qnaDto">
+		UPDATE QNA SET
+							QUESTION=#{question}
+				WHERE NO=#{no} AND TIME_A IS NULL
+	</update>
+	<update id="answer" parameterType="qnaDto">
+		UPDATE QNA SET
+							ANSWER=#{answer},
+							TIME_A=SYSDATE
+				WHERE NO=#{no}
+	</update>
+	
+</mapper>
